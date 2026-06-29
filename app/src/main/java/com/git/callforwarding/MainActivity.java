@@ -1,4 +1,4 @@
-package com.example.callforwarding;
+package com.git.callforwarding;
 
 import android.Manifest;
 import android.content.Context;
@@ -31,7 +31,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.callforwarding.databinding.ActivityMainBinding;
+import com.git.callforwarding.databinding.ActivityMainBinding;
 
 import org.json.JSONArray;
 import org.json.JSONException;
