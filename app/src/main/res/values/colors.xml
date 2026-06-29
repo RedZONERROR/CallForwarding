@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Mode Theme Palette -->
+    <color name="bg_background">#12131A</color>
+    <color name="bg_surface">#1B1D2A</color>
+    <color name="bg_surface_variant">#24273A</color>
+    
+    <color name="primary">#7C4DFF</color>
+    <color name="primary_variant">#651FFF</color>
+    <color name="on_primary">#FFFFFF</color>
+    
+    <color name="secondary">#00E5FF</color>
+    <color name="on_secondary">#12131A</color>
+    
+    <color name="accent_error">#FF3D00</color>
+    <color name="on_error">#FFFFFF</color>
+    
+    <color name="accent_warning">#FFC400</color>
+    <color name="accent_success">#00E676</color>
+    
+    <color name="text_primary">#F5F5F7</color>
+    <color name="text_secondary">#8E8E93</color>
+    <color name="text_disabled">#4E4E52</color>
+    
+    <color name="divider">#2C2D35</color>
+</resources>

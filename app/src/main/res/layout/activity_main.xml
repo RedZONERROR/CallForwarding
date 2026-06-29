@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://tools.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/bg_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+      
+        <!-- ACTIVE STATUS CARD -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="@color/bg_surface"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:id="@+id/status_indicator"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:background="@drawable/header_gradient"
+                        android:layout_marginEnd="10dp" />
+
+                    <TextView
+                        android:id="@+id/status_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Routing Status: Unconfigured"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/status_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="No call forwarding set through this app yet."
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ROUTING CONFIGURATION CARD -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="@color/bg_surface"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Setup Forwarding"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- FORWARDING PHONE NUMBER INPUT -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/phone_input_layout"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Forwarding Number"
+                        app:boxStrokeColor="@color/primary"
+                        app:hintTextColor="@color/primary"
+                        app:startIconDrawable="@android:drawable/ic_menu_call">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/phone_input"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="phone"
+                            android:textColor="@color/text_primary" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_pick_contact"
+                        style="@style/Widget.Material3.Button.IconButton.Filled"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:layout_marginStart="8dp"
+                        app:icon="@android:drawable/ic_menu_my_calendar"
+                        app:iconTint="@color/on_primary"
+                        app:backgroundTint="@color/primary"
+                        tools:ignore="SpeakableTextPresentCheck" />
+                </LinearLayout>
+
+                <!-- FORWARDING TYPE SPINNER -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Forwarding Trigger"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="4dp" />
+
+                <Spinner
+                    android:id="@+id/spinner_forwarding_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/header_gradient"
+                    android:backgroundTint="@color/bg_surface_variant"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- SIM SELECTION SLOT (COLLAPSIBLE / CONDITIONAL) -->
+                <LinearLayout
+                    android:id="@+id/sim_selection_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Select SIM Card"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="4dp" />
+
+                    <Spinner
+                        android:id="@+id/spinner_sim_select"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:backgroundTint="@color/bg_surface_variant"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp" />
+                </LinearLayout>
+
+                <!-- CARRIER PROFILE SELECTION -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Carrier Network Profile"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="8dp" />
+
+                <RadioGroup
+                    android:id="@+id/radio_group_carrier"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <RadioButton
+                        android:id="@+id/radio_gsm"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.1"
+                        android:text="GSM Standard"
+                        android:textColor="@color/text_primary"
+                        android:checked="true"
+                        android:buttonTint="@color/primary" />
+
+                    <RadioButton
+                        android:id="@+id/radio_cdma"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="CDMA / Star"
+                        android:textColor="@color/text_primary"
+                        android:buttonTint="@color/primary" />
+
+                    <RadioButton
+                        android:id="@+id/radio_custom"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.9"
+                        android:text="Custom"
+                        android:textColor="@color/text_primary"
+                        android:buttonTint="@color/primary" />
+                </RadioGroup>
+
+                <!-- CUSTOM CARRIER PARAMETERS (COLLAPSIBLE) -->
+                <LinearLayout
+                    android:id="@+id/custom_carrier_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/bg_surface_variant"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Custom MMI Code Builder"
+                        android:textColor="@color/secondary"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Activation Prefix (e.g. *21*)"
+                        android:layout_marginBottom="8dp"
+                        app:boxStrokeColor="@color/secondary"
+                        app:hintTextColor="@color/secondary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/custom_activation_prefix"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="*21*"
+                            android:textColor="@color/text_primary" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Activation Suffix (e.g. #)"
+                        android:layout_marginBottom="8dp"
+                        app:boxStrokeColor="@color/secondary"
+                        app:hintTextColor="@color/secondary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/custom_activation_suffix"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="#"
+                            android:textColor="@color/text_primary" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:boxStrokeColor="@color/secondary"
+                        app:hintTextColor="@color/secondary"
+                        android:hint="Deactivation Code (e.g. ##21#)">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/custom_deactivation_code"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="##21#"
+                            android:textColor="@color/text_primary" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <!-- ACTION BUTTONS -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_start_forwarding"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:text="Enable Call Forwarding"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/primary"
+                    app:cornerRadius="12dp"
+                    android:layout_marginBottom="12dp"
+                    app:icon="@android:drawable/button_onoff_indicator_on" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_stop_forwarding"
+                    style="@style/Widget.Material3.Button.ElevatedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:text="Stop Call Forwarding"
+                    android:textColor="@color/accent_error"
+                    android:textStyle="bold"
+                    app:strokeColor="@color/accent_error"
+                    app:strokeWidth="1dp"
+                    app:backgroundTint="@color/bg_surface"
+                    app:cornerRadius="12dp"
+                    app:icon="@android:drawable/ic_delete"
+                    app:iconTint="@color/accent_error" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ROUTING HISTORY CARD -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardBackgroundColor="@color/bg_surface"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Recent Routing Numbers"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/btn_clear_history"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Clear"
+                        android:textColor="@color/accent_error"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:clickable="true"
+                        android:focusable="true" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/history_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:id="@+id/tv_empty_history"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:text="No recent routing history"
+                    android:textColor="@color/text_disabled"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

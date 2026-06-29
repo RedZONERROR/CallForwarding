@@ -1,0 +1,13 @@
+[versions]
+agp = "9.0.0"
+#kotlin = "1.9.23"
+kotlin = "2.3.0"
+
+[libraries]
+# No libraries defined - all dependencies are declared directly in app/build.gradle
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+
