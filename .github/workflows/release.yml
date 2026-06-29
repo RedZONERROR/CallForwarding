@@ -41,18 +41,19 @@ jobs:
       - name: Grant Execute Permission for Gradlew
         run: chmod +x gradlew
 
-      # Prepare Keystore File for Release signing
+      # Prepare Keystore File for Release signing (only if secret is configured)
       # The keystore is stored as a base64 string in GitHub Secrets: KEYSTORE_BASE64
       - name: Decode Signing Keystore
-        if: ${{ github.event.inputs.build_type == 'Release' || github.ref_type == 'tag' }}
+        if: ${{ (github.event.inputs.build_type == 'Release' || github.ref_type == 'tag') && secrets.KEYSTORE_BASE64 != '' }}
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
-          if [ -z "$KEYSTORE_BASE64" ]; then
-            echo "::error::KEYSTORE_BASE64 secret is not defined. Please add it to your repository secrets."
-            exit 1
-          fi
           echo "$KEYSTORE_BASE64" | base64 --decode > xxxxxxxxxx
+
+      - name: Log Warning if Keystore Missing
+        if: ${{ (github.event.inputs.build_type == 'Release' || github.ref_type == 'tag') && secrets.KEYSTORE_BASE64 == '' }}
+        run: |
+          echo "::warning::KEYSTORE_BASE64 secret is not defined. Building an unsigned release APK."
 
       - name: Build Debug APK
         if: ${{ github.event.inputs.build_type == 'Debug' }}
