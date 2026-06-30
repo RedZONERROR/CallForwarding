@@ -9,6 +9,8 @@ import android.telecom.TelecomManager;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -172,14 +174,75 @@ public class CallForwardingHelper {
         return null;
     }
 
+    public interface UssdResultCallback {
+        void onUssdSuccess(String response);
+        void onUssdFailure(String errorMessage, boolean canFallback);
+    }
+
     /**
      * Execute the given MMI/USSD code.
      */
-    public static boolean executeMmiCode(Context context, String code, PhoneAccountHandle simHandle) {
+    public static void executeMmiCode(Context context, String code, PhoneAccountHandle simHandle, Integer subId, UssdResultCallback callback) {
         if (code == null || code.trim().isEmpty()) {
-            return false;
+            if (callback != null) callback.onUssdFailure("Empty MMI code", false);
+            return;
         }
 
+        // 1. Try background USSD execution (silent background)
+        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        if (telephonyManager != null && android.os.Build.VERSION.SDK_INT >= 26) {
+            TelephonyManager targetedTm = telephonyManager;
+            if (subId != null && subId != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+                targetedTm = telephonyManager.createForSubscriptionId(subId);
+            }
+
+            try {
+                Log.d(TAG, "Attempting silent background USSD request: " + code);
+                targetedTm.sendUssdRequest(code, new TelephonyManager.UssdResponseCallback() {
+                    @Override
+                    public void onReceiveUssdResponse(TelephonyManager telephonyManager, String request, CharSequence response) {
+                        super.onReceiveUssdResponse(telephonyManager, request, response);
+                        Log.d(TAG, "Silent USSD Success: " + response);
+                        if (callback != null) {
+                            callback.onUssdSuccess(response.toString());
+                        }
+                    }
+
+                    @Override
+                    public void onReceiveUssdResponseFailed(TelephonyManager telephonyManager, String request, int failureCode) {
+                        super.onReceiveUssdResponseFailed(telephonyManager, request, failureCode);
+                        Log.w(TAG, "Silent USSD failed with code: " + failureCode + ". Falling back to dialer.");
+                        boolean fallbackSuccess = dialViaIntent(context, code, simHandle);
+                        if (callback != null) {
+                            if (fallbackSuccess) {
+                                callback.onUssdFailure("Background setup failed (code " + failureCode + "). Falling back to phone app...", true);
+                            } else {
+                                callback.onUssdFailure("Background setup failed and dialer fallback is unavailable.", false);
+                            }
+                        }
+                    }
+                }, new Handler(Looper.getMainLooper()));
+
+                return; // Asynchronous request sent
+            } catch (SecurityException e) {
+                Log.w(TAG, "SecurityException (missing CALL_PHONE permission): " + e.getMessage());
+            } catch (Exception e) {
+                Log.w(TAG, "Exception in background USSD: " + e.getMessage());
+            }
+        }
+
+        // 2. Fallback execution: Dial via intent
+        boolean success = dialViaIntent(context, code, simHandle);
+        if (callback != null) {
+            if (success) {
+                callback.onUssdFailure("Dialer execution triggered.", true);
+            } else {
+                callback.onUssdFailure("Failed to dial MMI code.", false);
+            }
+        }
+    }
+
+    private static boolean dialViaIntent(Context context, String code, PhoneAccountHandle simHandle) {
         try {
             // Encode the '#' character to '%23' for dialing intent
             String dialNumber = code.replace("#", "%23");
@@ -188,19 +251,14 @@ public class CallForwardingHelper {
             Intent intent = new Intent(Intent.ACTION_CALL, uri);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             
-            // Route call to specific SIM if handle is provided
             if (simHandle != null) {
                 intent.putExtra(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, simHandle);
-                Log.d(TAG, "Routing MMI call via SIM: " + simHandle.getId());
             }
             
             context.startActivity(intent);
             return true;
-        } catch (SecurityException e) {
-            Log.e(TAG, "CALL_PHONE permission is missing: " + e.getMessage());
-            return false;
         } catch (Exception e) {
-            Log.e(TAG, "Error executing MMI code: " + e.getMessage());
+            Log.e(TAG, "Error dialing MMI code: " + e.getMessage());
             return false;
         }
     }

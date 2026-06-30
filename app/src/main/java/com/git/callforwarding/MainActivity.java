@@ -231,14 +231,19 @@ public class MainActivity extends AppCompatActivity {
             binding.phoneInputLayout.setError(null);
         }
 
-        // Get selected SIM handle if multiple SIMs exist
+        // Get selected SIM handle and subscription ID
+        Integer subId = null;
         PhoneAccountHandle targetSimHandle = null;
         if (mActiveSubscriptions.size() > 1) {
             int selectedIndex = binding.spinnerSimSelect.getSelectedItemPosition();
             if (selectedIndex >= 0 && selectedIndex < mActiveSubscriptions.size()) {
                 SubscriptionInfo subInfo = mActiveSubscriptions.get(selectedIndex);
+                subId = subInfo.getSubscriptionId();
                 targetSimHandle = CallForwardingHelper.getPhoneAccountHandleForSubscription(this, subInfo);
             }
+        } else if (mActiveSubscriptions.size() == 1) {
+            subId = mActiveSubscriptions.get(0).getSubscriptionId();
+            targetSimHandle = CallForwardingHelper.getPhoneAccountHandleForSubscription(this, mActiveSubscriptions.get(0));
         }
 
         String mmiCode;
@@ -261,23 +266,47 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        boolean success = CallForwardingHelper.executeMmiCode(this, mmiCode, targetSimHandle);
-        if (success) {
-            if (activate) {
-                if (trigger == 4) {
-                    saveRoutingState("Deactivated All", "", carrierType, trigger);
+        final String finalPhoneNumber = phoneNumber;
+        final String finalMmiCode = mmiCode;
+        
+        Toast.makeText(this, "Updating call forwarding...", Toast.LENGTH_SHORT).show();
+
+        CallForwardingHelper.executeMmiCode(this, mmiCode, targetSimHandle, subId, new CallForwardingHelper.UssdResultCallback() {
+            @Override
+            public void onUssdSuccess(String response) {
+                if (activate) {
+                    if (trigger == 4) {
+                        saveRoutingState("Deactivated All", "", carrierType, trigger);
+                    } else {
+                        saveRoutingState("Routing Enabled", finalPhoneNumber, carrierType, trigger);
+                        addToHistory(finalPhoneNumber);
+                    }
                 } else {
-                    saveRoutingState("Routing Enabled", phoneNumber, carrierType, trigger);
-                    addToHistory(phoneNumber);
+                    saveRoutingState("Routing Deactivated", "", carrierType, trigger);
                 }
-            } else {
-                saveRoutingState("Routing Deactivated", "", carrierType, trigger);
+                Toast.makeText(MainActivity.this, "Success:\n" + response, Toast.LENGTH_LONG).show();
             }
-            
-            Toast.makeText(this, "Executing: " + mmiCode, Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(this, "Failed to dial MMI code", Toast.LENGTH_SHORT).show();
-        }
+
+            @Override
+            public void onUssdFailure(String errorMessage, boolean canFallback) {
+                if (canFallback) {
+                    // Update state assuming it runs via dialer fallback
+                    if (activate) {
+                        if (trigger == 4) {
+                            saveRoutingState("Deactivated All", "", carrierType, trigger);
+                        } else {
+                            saveRoutingState("Routing Enabled", finalPhoneNumber, carrierType, trigger);
+                            addToHistory(finalPhoneNumber);
+                        }
+                    } else {
+                        saveRoutingState("Routing Deactivated", "", carrierType, trigger);
+                    }
+                    Toast.makeText(MainActivity.this, "MMI Dialed: " + finalMmiCode + " (" + errorMessage + ")", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Failed: " + errorMessage, Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 
     private int getSelectedCarrierType() {
